@@ -1,4 +1,4 @@
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, CartesianGrid } from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, CartesianGrid } from 'recharts'
 
 interface DashboardProps {
   stats: {
@@ -13,7 +13,7 @@ interface DashboardProps {
   }
 }
 
-const COLORS = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#06b6d4', '#ec4899']
+const COLORS = ['#2563eb', '#dc2626', '#059669', '#d97706', '#7c3aed', '#0891b2', '#db2777']
 
 export default function Dashboard({ stats }: DashboardProps) {
   const genderData = [
@@ -30,28 +30,27 @@ export default function Dashboard({ stats }: DashboardProps) {
   ].filter(d => d.value > 0)
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-      <div className="bg-white rounded-xl border p-4">
-        <h3 className="text-sm font-semibold text-gray-700 mb-3">Gender Distribution</h3>
-        <ResponsiveContainer width="100%" height={250}>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+      <div className="bg-white border border-gray-200 rounded-lg p-5">
+        <h3 className="text-sm font-medium text-gray-700 mb-4">Gender Distribution</h3>
+        <ResponsiveContainer width="100%" height={240}>
           <PieChart>
-            <Pie data={genderData} cx="50%" cy="50%" outerRadius={80} dataKey="value" label>
+            <Pie data={genderData} cx="50%" cy="50%" outerRadius={80} dataKey="value" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
               {genderData.map((_, i) => <Cell key={i} fill={COLORS[i]} />)}
             </Pie>
-            <Legend />
           </PieChart>
         </ResponsiveContainer>
       </div>
 
-      <div className="bg-white rounded-xl border p-4">
-        <h3 className="text-sm font-semibold text-gray-700 mb-3">Category Distribution</h3>
-        <ResponsiveContainer width="100%" height={250}>
+      <div className="bg-white border border-gray-200 rounded-lg p-5">
+        <h3 className="text-sm font-medium text-gray-700 mb-4">Category Distribution</h3>
+        <ResponsiveContainer width="100%" height={240}>
           <BarChart data={categoryData}>
-            <CartesianGrid strokeDasharray="3 3" />
+            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
             <Tooltip />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Bar dataKey="value" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+            <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+            <YAxis tick={{ fontSize: 12 }} />
+            <Bar dataKey="value" fill="#2563eb" radius={[3, 3, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>
