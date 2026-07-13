@@ -86,6 +86,80 @@ class GeminiService:
                 mapping["language"] = raw
         return mapping
 
+    def explain_difference(
+        self, school_record: dict, portal_record: dict, field: str,
+        old_val: str, new_val: str
+    ) -> dict:
+        if not self.client:
+            return {
+                "type": "unknown",
+                "explanation": "AI not configured. Manual review needed.",
+                "confidence": 0.0,
+                "action": "review"
+            }
+
+        prompt = (
+            "You are a school data reconciliation expert. Analyze this change in a student record.\n\n"
+            f"Student: {portal_record.get('student_name', '')} (ID: {portal_record.get('admission_no', '')})\n"
+            f"Field changed: {field}\n"
+            f"Old value (school record): {old_val}\n"
+            f"New value (portal record): {new_val}\n\n"
+            "Classify this change into one of:\n"
+            "- 'correction': Fixing a data entry error (e.g. spelling fix, wrong class)\n"
+            "- 'rename': Student name changed legitimately\n"
+            "- 'reclassification': Category/gender changed (possible miscategorization)\n"
+            "- 'data_entry_error': Likely someone typed wrong data\n"
+            "- 'unknown': Cannot determine\n\n"
+            "Return ONLY a JSON object with keys: type, explanation (1 sentence), confidence (0-1), action (accept/skip/review)."
+        )
+        try:
+            response = self.client.models.generate_content(
+                model=self.model, contents=prompt
+            )
+            return self._parse_json(response.text)
+        except Exception:
+            return {"type": "unknown", "explanation": "Could not analyze.", "confidence": 0.0, "action": "review"}
+
+    def suggest_best_match(
+        self, unmatched_record: dict, candidates: list[dict], top_n: int = 3
+    ) -> list[dict]:
+        if not self.client or not candidates:
+            return []
+
+        rec_str = (
+            f"Record to match:\n"
+            f"  Name: {unmatched_record.get('student_name', '')}\n"
+            f"  Class: {unmatched_record.get('class_name', '')}\n"
+            f"  Gender: {unmatched_record.get('gender', '')}\n"
+            f"  Category: {unmatched_record.get('category', '')}\n"
+        )
+        cand_str = "\n".join(
+            f"  {i+1}. Name: {c.get('student_name', '')} | Class: {c.get('class_name', '')} "
+            f"| Gender: {c.get('gender', '')} | Category: {c.get('category', '')}"
+            for i, c in enumerate(candidates[:10])
+        )
+
+        prompt = (
+            "You are matching student records across two school data sources. "
+            "The record below has no exact ID match in the other sheet. "
+            "Find the best matches from the candidate list. Consider name similarity, class, gender, and category.\n\n"
+            f"{rec_str}\nCandidates:\n{cand_str}\n\n"
+            "Return ONLY a JSON array of objects with keys: candidate_index (0-based), score (0-1), reason (short). "
+            "Sort by score descending. Max 3 results."
+        )
+        try:
+            response = self.client.models.generate_content(
+                model=self.model, contents=prompt
+            )
+            result = self._parse_json(response.text)
+            if isinstance(result, list):
+                return result
+            if isinstance(result, dict) and "matches" in result:
+                return result["matches"]
+            return []
+        except Exception:
+            return []
+
     def _parse_json(self, text: str) -> dict:
         import json, re
         match = re.search(r"\{.*\}", text, re.DOTALL)

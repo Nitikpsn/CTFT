@@ -26,6 +26,14 @@ export interface Modification {
   new_value: string
   record_name: string
   difference_type: string
+  ai_insight?: AIInsight
+}
+
+export interface AIInsight {
+  type: 'correction' | 'rename' | 'reclassification' | 'data_entry_error' | 'unknown'
+  explanation: string
+  confidence: number
+  action: 'accept' | 'skip' | 'review'
 }
 
 export interface StatsResult {

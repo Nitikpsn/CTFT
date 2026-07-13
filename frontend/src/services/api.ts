@@ -19,6 +19,7 @@ function transformMod(m: any): Modification {
     old_value: m.old_value || '',
     new_value: m.new_value || '',
     difference_type: m.difference_type || '',
+    ai_insight: m.ai_insight || undefined,
   }
 }
 
@@ -108,4 +109,67 @@ export async function compareCategories(sessionId: string): Promise<CategoryComp
     method: 'POST',
     body: JSON.stringify({ session_id: sessionId }),
   })
+}
+
+export function streamCompare(
+  sessionId: string,
+  onEvent: (event: string, data: any) => void,
+  onComplete: () => void,
+  onError: (err: Error) => void,
+): AbortController {
+  const controller = new AbortController()
+
+  fetch(`${API_BASE}/api/compare/stream/${sessionId}`, {
+    headers: { Accept: 'text/event-stream' },
+    signal: controller.signal,
+  })
+    .then(async (response) => {
+      if (!response.ok) {
+        onError(new Error(await response.text()))
+        return
+      }
+      const reader = response.body?.getReader()
+      if (!reader) {
+        onError(new Error('No response body'))
+        return
+      }
+
+      const decoder = new TextDecoder()
+      let buffer = ''
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        buffer += decoder.decode(value, { stream: true })
+        const lines = buffer.split('\n')
+        buffer = lines.pop() || ''
+
+        let currentEvent = ''
+        for (const line of lines) {
+          if (line.startsWith('event: ')) {
+            currentEvent = line.slice(7).trim()
+          } else if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6))
+              if (currentEvent === 'complete') {
+                onComplete()
+              } else if (currentEvent) {
+                onEvent(currentEvent, data)
+              }
+            } catch {
+              // skip malformed JSON
+            }
+          }
+        }
+      }
+      onComplete()
+    })
+    .catch((err) => {
+      if (err.name !== 'AbortError') {
+        onError(err)
+      }
+    })
+
+  return controller
 }

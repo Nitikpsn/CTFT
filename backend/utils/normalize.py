@@ -24,12 +24,12 @@ CATEGORY_MAP = {
 }
 
 CATEGORY_ALIASES = {
-    "general": ["सामान्य", "general", "gen"],
+    "general": ["सामान्य", "general", "gen", "general category"],
     "obc": ["अन्य पिछड़ा वर्ग", "obc", "other backward class", "o.b.c."],
     "obc_cl": ["अन्य पिछड़ा वर्ग (सीएल)", "obc cl", "obc-cl", "obc (cl)"],
     "obc_ncl": ["अन्य पिछड़ा वर्ग (एनसीएल)", "obc ncl", "obc-ncl", "obc (ncl)"],
-    "sc": ["एस.सी.", "sc", "scheduled caste"],
-    "st": ["एस.टी.", "st", "scheduled tribe"],
+    "sc": ["एस.सी.", "अनुसूचित जाति", "sc", "scheduled caste", "s.c."],
+    "st": ["एस.टी.", "अनुसूचित जनजाति", "st", "scheduled tribe", "s.t."],
     "muslim": ["मुस्लिम", "muslim"],
     "christian": ["क्रिस्चियन", "christian"],
     "sikh": ["सिख", "sikh"],
@@ -40,9 +40,9 @@ CATEGORY_ALIASES = {
     "cwsn": ["विकलांग", "cwsn", "divyang", "disabled"],
     "rte": ["rte"],
     "sgc": ["sgc"],
-    "boys": ["छात्र", "boys", "male"],
-    "girls": ["छात्रा", "girls", "female"],
-    "total": ["कुल", "योग", "total", "grand total", "संख्या"],
+    "boys": ["छात्र", "boys", "male", "बालक"],
+    "girls": ["छात्रा", "girls", "female", "बालिका"],
+    "total": ["कुल", "योग", "total", "grand total", "संख्या", "कुल योग"],
 }
 
 ROMAN_TO_NUM = {

@@ -1,5 +1,6 @@
-import os, glob
+import os, glob, json, asyncio
 from fastapi import APIRouter, HTTPException
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from config import settings
 from services.excel_parser import parse_excel
@@ -40,9 +41,52 @@ async def run_comparison(req: CompareRequest):
     school_records = parse_excel(school_path, "school", ai_fallback=gemini_service)
     portal_records = parse_excel(portal_path, "portal", ai_fallback=gemini_service)
 
-    result = compare(school_records, portal_records)
+    result = compare(school_records, portal_records, ai_service=gemini_service)
 
     return result
+
+
+async def _stream_compare(school_records, portal_records):
+    events = []
+
+    def callback(event_type: str, data: dict):
+        events.append((event_type, dict(data)))
+
+    loop = asyncio.get_event_loop()
+
+    def run_compare():
+        compare(school_records, portal_records, ai_service=gemini_service, stream_callback=callback)
+
+    await loop.run_in_executor(None, run_compare)
+
+    for event_type, data in events:
+        yield f"event: {event_type}\ndata: {json.dumps(data)}\n\n"
+        await asyncio.sleep(0.01)
+
+    yield f"event: complete\ndata: {json.dumps({'done': True})}\n\n"
+
+
+@router.get("/compare/stream/{session_id}")
+async def stream_comparison(session_id: str):
+    session_dir = os.path.join(UPLOAD_DIR, session_id)
+    if not os.path.exists(session_dir):
+        raise HTTPException(404, "Session not found")
+
+    school_path = _resolve(session_dir, "school")
+    portal_path = _resolve(session_dir, "portal")
+
+    school_records = parse_excel(school_path, "school", ai_fallback=gemini_service)
+    portal_records = parse_excel(portal_path, "portal", ai_fallback=gemini_service)
+
+    return StreamingResponse(
+        _stream_compare(school_records, portal_records),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
 
 
 @router.get("/stats/{session_id}")
