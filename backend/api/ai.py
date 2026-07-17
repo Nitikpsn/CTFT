@@ -1,22 +1,15 @@
-import os, glob
+import os
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from config import settings
 from services.excel_parser import parse_excel
 from services.stats_engine import compute_stats, class_wise_stats
 from services.gemini_service import gemini_service
+from api.utils import resolve_file
 
 router = APIRouter(prefix="/api")
 
 UPLOAD_DIR = settings.upload_dir
-
-
-def _resolve(session_dir: str, prefix: str) -> str:
-    pattern = os.path.join(session_dir, f"{prefix}.*")
-    matches = glob.glob(pattern)
-    if not matches:
-        raise HTTPException(400, f"No file found for '{prefix}' in session")
-    return matches[0]
 
 
 class ChatRequest(BaseModel):
@@ -30,7 +23,7 @@ def ai_chat(req: ChatRequest):
     if not os.path.exists(session_dir):
         raise HTTPException(404, "Session not found")
 
-    portal_path = _resolve(session_dir, "portal")
+    portal_path = resolve_file(session_dir, "portal")
     portal_records = parse_excel(portal_path, "portal", ai_fallback=gemini_service)
 
     normalized = gemini_service.normalize_query(req.query)

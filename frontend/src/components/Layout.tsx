@@ -36,35 +36,35 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const sidebarClass = sidebarOpen ? 'translate-x-0' : '-translate-x-full'
 
   return (
-    <div className="min-h-screen bg-neutral-50 dark:bg-[#1a1a1a] flex">
+    <div className="min-h-screen bg-white dark:bg-notion-bg-dark flex">
       {sidebarOpen && (
         <div className="fixed inset-0 bg-black/40 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      <aside className={`fixed inset-y-0 left-0 z-50 w-60 bg-white dark:bg-[#222] border-r border-neutral-200 dark:border-neutral-800 flex flex-col transform transition-transform lg:translate-x-0 lg:static lg:z-auto ${sidebarClass}`}>
-        <div className="h-12 flex items-center px-4 border-b border-neutral-100 dark:border-neutral-800">
+      <aside className={`fixed inset-y-0 left-0 z-50 w-60 bg-notion-sidebar dark:bg-notion-sidebar-dark flex flex-col transform transition-transform lg:translate-x-0 lg:static lg:z-auto ${sidebarClass}`}>
+        <div className="h-11 flex items-center px-3">
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-neutral-900 dark:bg-neutral-100 flex items-center justify-center">
-              <LayoutDashboard className="w-4 h-4 text-white dark:text-neutral-900" />
+            <div className="w-5 h-5 rounded bg-notion-text-primary dark:bg-white flex items-center justify-center">
+              <LayoutDashboard className="w-3 h-3 text-white dark:text-notion-bg-dark" />
             </div>
-            <span className="font-semibold text-neutral-800 dark:text-neutral-200 text-sm">CTFT Comparison Tool</span>
+            <span className="font-semibold text-notion-text-primary dark:text-notion-text-primary-dark text-sm">CTFT</span>
           </Link>
-          <button onClick={() => setSidebarOpen(false)} className="ml-auto lg:hidden p-1 text-neutral-400">
+          <button onClick={() => setSidebarOpen(false)} className="ml-auto lg:hidden p-1 text-notion-text-tertiary">
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        <nav className="flex-1 py-2 px-2 space-y-0.5 overflow-y-auto">
+        <nav className="flex-1 py-1 px-2 space-y-px overflow-y-auto">
           {navItems.map(item => {
             const isActive = item.path === '/' ? location.pathname === '/' : location.pathname.startsWith(item.path)
             return (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center gap-2.5 px-3 py-2 text-sm rounded-md ${
+                className={`flex items-center gap-2 px-2 py-1 text-sm rounded ${
                   isActive
-                    ? 'bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 font-medium'
-                    : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800/50'
+                    ? 'bg-notion-hover dark:bg-notion-hover-dark text-notion-text-primary dark:text-notion-text-primary-dark font-medium'
+                    : 'text-notion-text-secondary dark:text-notion-text-secondary-dark hover:bg-notion-hover dark:hover:bg-notion-hover-dark'
                 }`}
               >
                 <item.icon className="w-4 h-4" />
@@ -74,9 +74,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           })}
 
           {sessions.length > 0 && (
-            <div className="mt-6">
-              <p className="px-3 text-xs font-medium text-neutral-400 dark:text-neutral-500 mb-1">
-                Recent Sessions
+            <div className="mt-4">
+              <p className="px-2 text-[11px] text-notion-text-tertiary dark:text-notion-text-tertiary-dark mb-0.5">
+                Recent
               </p>
               {sessions.map(s => {
                 const active = s.session_id === sessionId
@@ -84,16 +84,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   <Link
                     key={s.session_id}
                     to={`/compare/${s.session_id}`}
-                    className={`flex items-center gap-2.5 px-3 py-2 text-sm rounded-md ${
+                    className={`flex items-center gap-2 px-2 py-1 text-sm rounded ${
                       active
-                        ? 'bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100'
-                        : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800/50'
+                        ? 'bg-notion-hover dark:bg-notion-hover-dark text-notion-text-primary dark:text-notion-text-primary-dark'
+                        : 'text-notion-text-secondary dark:text-notion-text-secondary-dark hover:bg-notion-hover dark:hover:bg-notion-hover-dark'
                     }`}
                   >
-                    <div className={`w-1.5 h-1.5 rounded-full ${active ? 'bg-neutral-900 dark:bg-neutral-100' : 'bg-neutral-300 dark:bg-neutral-600'}`} />
+                    <div className={`w-1 h-1 rounded-full ${active ? 'bg-notion-text-primary dark:bg-white' : 'bg-notion-text-tertiary dark:bg-notion-text-tertiary-dark'}`} />
                     <div className="truncate">
                       <p className="text-xs font-mono truncate">{s.session_id.slice(0, 8)}</p>
-                      <p className="text-xs text-neutral-400 dark:text-neutral-500 truncate">{s.created}</p>
+                      <p className="text-[10px] text-notion-text-tertiary dark:text-notion-text-tertiary-dark truncate">{s.created}</p>
                     </div>
                   </Link>
                 )
@@ -102,24 +102,24 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           )}
         </nav>
 
-        <div className="border-t border-neutral-100 dark:border-neutral-800 px-4 py-3 space-y-2">
-          <div className="flex items-start gap-2 p-2 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/30 rounded-lg">
-            <AlertTriangle className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
-            <p className="text-[10px] leading-tight text-amber-700 dark:text-amber-400">
-              This app is only for KV teachers for comparing Excel student data.
+        <div className="px-3 py-2 space-y-2">
+          <div className="flex items-start gap-2 p-2 bg-notion-hover dark:bg-notion-hover-dark rounded">
+            <AlertTriangle className="w-3.5 h-3.5 text-notion-text-secondary dark:text-notion-text-secondary-dark mt-0.5 flex-shrink-0" />
+            <p className="text-[10px] leading-tight text-notion-text-secondary dark:text-notion-text-secondary-dark">
+              Only for KV teachers comparing Excel student data.
             </p>
           </div>
-          <p className="text-xs text-neutral-400 text-center">Made by <a href="https://github.com/Nitikpsn" target="_blank" rel="noopener noreferrer" className="text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-neutral-100 underline underline-offset-2">Nitik Paswan</a></p>
+          <p className="text-[10px] text-notion-text-tertiary dark:text-notion-text-tertiary-dark text-center">Made by <a href="https://github.com/Nitikpsn" target="_blank" rel="noopener noreferrer" className="text-notion-text-secondary dark:text-notion-text-secondary-dark hover:text-notion-text-primary dark:hover:text-notion-text-primary-dark underline underline-offset-2">Nitik Paswan</a></p>
         </div>
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="h-12 bg-white dark:bg-[#222] border-b border-neutral-200 dark:border-neutral-800 flex items-center px-4 lg:px-6 sticky top-0 z-30">
-          <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-1.5 -ml-1.5 text-neutral-500 dark:text-neutral-400">
+        <header className="h-11 bg-white dark:bg-notion-bg-dark border-b border-notion-border dark:border-notion-border-dark flex items-center px-3 lg:px-5 sticky top-0 z-30">
+          <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-1 -ml-1 text-notion-text-secondary dark:text-notion-text-secondary-dark">
             <Menu className="w-5 h-5" />
           </button>
           <div className="flex-1" />
-          <button onClick={() => setDark(!dark)} className="p-1.5 text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300">
+          <button onClick={() => setDark(!dark)} className="p-1.5 text-notion-text-secondary dark:text-notion-text-secondary-dark hover:text-notion-text-primary dark:hover:text-notion-text-primary-dark rounded hover:bg-notion-hover dark:hover:bg-notion-hover-dark transition-colors">
             {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </button>
         </header>

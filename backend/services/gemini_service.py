@@ -1,3 +1,5 @@
+import json
+import re
 from google import genai
 from config import settings
 
@@ -41,13 +43,13 @@ class GeminiService:
 
     def query_to_filter(self, query_text: str, classes: list[str]) -> dict:
         if not self.client:
-            return {"error": "AI not configured"}
+            return {}
 
         prompt = (
             "Convert this school query into a JSON filter object. "
             "Available classes: " + ", ".join(classes) + ". "
-            "Return like: {\"gender\": \"boy\", \"category\": \"SC\", \"class_name\": \"6\"}. "
-            "Skip fields not mentioned.\n\n"
+            'Return like: {"gender": "boy", "category": "SC", "class_name": "6"}. '
+            "Skip fields not mentioned. Return ONLY valid JSON.\n\n"
             f"Query: {query_text}"
         )
         response = self.client.models.generate_content(
@@ -95,7 +97,7 @@ class GeminiService:
                 "type": "unknown",
                 "explanation": "AI not configured. Manual review needed.",
                 "confidence": 0.0,
-                "action": "review"
+                "action": "review",
             }
 
         prompt = (
@@ -116,7 +118,10 @@ class GeminiService:
             response = self.client.models.generate_content(
                 model=self.model, contents=prompt
             )
-            return self._parse_json(response.text)
+            result = self._parse_json(response.text)
+            if isinstance(result, dict) and result.get("type"):
+                return result
+            return {"type": "unknown", "explanation": "Could not classify.", "confidence": 0.0, "action": "review"}
         except Exception:
             return {"type": "unknown", "explanation": "Could not analyze.", "confidence": 0.0, "action": "review"}
 
@@ -151,7 +156,7 @@ class GeminiService:
             response = self.client.models.generate_content(
                 model=self.model, contents=prompt
             )
-            result = self._parse_json(response.text)
+            result = self._parse_json(response.text, allow_array=True)
             if isinstance(result, list):
                 return result
             if isinstance(result, dict) and "matches" in result:
@@ -160,14 +165,33 @@ class GeminiService:
         except Exception:
             return []
 
-    def _parse_json(self, text: str) -> dict:
-        import json, re
-        match = re.search(r"\{.*\}", text, re.DOTALL)
-        if match:
+    def _parse_json(self, text: str, allow_array: bool = False) -> dict | list:
+        if not text:
+            return {} if not allow_array else []
+
+        text = text.strip()
+        if text.startswith("```"):
+            text = re.sub(r"^```\w*\n?", "", text)
+            text = re.sub(r"\n?```$", "", text)
+            text = text.strip()
+
+        if allow_array:
+            array_match = re.search(r"\[.*\]", text, re.DOTALL)
+            if array_match:
+                try:
+                    return json.loads(array_match.group())
+                except json.JSONDecodeError:
+                    pass
+
+        obj_match = re.search(r"\{.*\}", text, re.DOTALL)
+        if obj_match:
             try:
-                return json.loads(match.group())
+                return json.loads(obj_match.group())
             except json.JSONDecodeError:
                 pass
+
+        if allow_array:
+            return []
         return {}
 
 

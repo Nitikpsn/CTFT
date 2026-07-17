@@ -11,17 +11,17 @@ body {
 }
 
 .card {
-  @apply bg-white dark:bg-[#252525] border border-neutral-200 dark:border-neutral-800 rounded-lg;
+  @apply bg-white dark:bg-notion-card-dark border border-notion-border dark:border-notion-border-dark rounded-lg;
 }
 
 .btn {
-  @apply inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg transition-colors;
+  @apply inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-md transition-colors;
 }
 
 .btn-primary {
-  @apply btn bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 hover:bg-neutral-800 dark:hover:bg-neutral-200 disabled:opacity-50;
+  @apply btn bg-notion-text-primary dark:bg-white text-white dark:text-notion-bg-dark hover:opacity-90 disabled:opacity-40;
 }
 
 .btn-secondary {
-  @apply btn border border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800;
+  @apply btn border border-notion-border dark:border-notion-border-dark text-notion-text-secondary dark:text-notion-text-secondary-dark hover:bg-notion-hover dark:hover:bg-notion-hover-dark;
 }

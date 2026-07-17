@@ -15,7 +15,7 @@ export default function ComparisonTable({ modifications, newRecords, missingReco
   const modCols = [
     { key: 'id', label: 'ID' },
     { key: 'record_name', label: 'Name' },
-    { key: 'field_name', label: 'Field', render: (v: string) => <span className="px-2 py-0.5 rounded text-xs font-medium bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300">{v}</span> },
+    { key: 'field_name', label: 'Field', render: (v: string) => <span className="px-2 py-0.5 rounded text-xs font-medium bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400">{v}</span> },
     { key: 'old_value', label: 'Old', render: (v: string) => <span className="text-red-600 dark:text-red-400 text-xs">{v || '—'}</span> },
     { key: 'new_value', label: 'New', render: (v: string) => <span className="text-emerald-600 dark:text-emerald-400 text-xs">{v || '—'}</span> },
     {
@@ -25,7 +25,7 @@ export default function ComparisonTable({ modifications, newRecords, missingReco
         row.ai_insight ? (
           <button
             onClick={() => setSelectedMod(selectedMod === row.id + row.field_name ? null : row.id + row.field_name)}
-            className={`text-xs font-medium px-2 py-0.5 rounded-full transition-colors ${
+            className={`text-xs font-medium px-2 py-0.5 rounded transition-colors ${
               row.ai_insight.action === 'accept'
                 ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400'
                 : row.ai_insight.action === 'skip'
@@ -36,7 +36,7 @@ export default function ComparisonTable({ modifications, newRecords, missingReco
             {row.ai_insight.type.replace(/_/g, ' ')}
           </button>
         ) : (
-          <span className="text-[10px] text-neutral-400">—</span>
+          <span className="text-[10px] text-notion-text-tertiary">—</span>
         )
       ),
     },
@@ -53,15 +53,15 @@ export default function ComparisonTable({ modifications, newRecords, missingReco
 
   return (
     <div className="mt-4">
-      <div className="flex gap-1 mb-3 bg-neutral-100 dark:bg-neutral-800 rounded-lg p-1 w-fit">
+      <div className="flex gap-0.5 mb-3 bg-notion-hover dark:bg-notion-hover-dark rounded p-0.5 w-fit">
         {tabs.map(t => (
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
-            className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+            className={`px-3 py-1.5 text-sm font-medium rounded transition-colors ${
               tab === t.key
-                ? 'bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 shadow-sm'
-                : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300'
+                ? 'bg-white dark:bg-notion-card-dark text-notion-text-primary dark:text-notion-text-primary-dark shadow-sm'
+                : 'text-notion-text-secondary dark:text-notion-text-secondary-dark hover:text-notion-text-primary dark:hover:text-notion-text-primary-dark'
             }`}
           >
             {t.label} ({t.count})

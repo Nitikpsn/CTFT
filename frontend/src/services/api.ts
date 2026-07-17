@@ -20,6 +20,9 @@ function transformMod(m: any): Modification {
     new_value: m.new_value || '',
     difference_type: m.difference_type || '',
     ai_insight: m.ai_insight || undefined,
+    fuzzy_score: m.fuzzy_score || undefined,
+    school_id: m.school_id || undefined,
+    portal_id: m.portal_id || undefined,
   }
 }
 
@@ -68,11 +71,13 @@ export async function compare(session_id: string): Promise<CompareResult> {
   })
 
   return {
+    data_type: raw.data_type || 'student',
     matched: raw.matched || 0,
     missing: raw.missing || 0,
     modified: raw.modified || 0,
     new: raw.new || 0,
     matched_ids: raw.matched_admissions || raw.matched_ids || [],
+    fuzzy_matched: raw.fuzzy_matched || [],
     modifications: (raw.modifications || []).map(transformMod),
     new_records: (raw.new_records || []).map((r: any) => {
       const { difference_type, ...rest } = r
@@ -82,6 +87,9 @@ export async function compare(session_id: string): Promise<CompareResult> {
       const { difference_type, ...rest } = r
       return rest
     }),
+    category_result: raw.category_result || undefined,
+    school_label: raw.school_label || undefined,
+    portal_label: raw.portal_label || undefined,
   }
 }
 

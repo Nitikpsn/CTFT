@@ -1,4 +1,4 @@
-import os, glob
+import os
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from fastapi.responses import FileResponse
@@ -7,20 +7,13 @@ from services.excel_parser import parse_excel
 from services.comparator import compare
 from services.exporter import build_report_data, export_report_to_excel
 from services.gemini_service import gemini_service
+from api.utils import resolve_file
 
 router = APIRouter(prefix="/api")
 
 UPLOAD_DIR = settings.upload_dir
 REPORT_DIR = settings.report_dir
 os.makedirs(REPORT_DIR, exist_ok=True)
-
-
-def _resolve(session_dir: str, prefix: str) -> str:
-    pattern = os.path.join(session_dir, f"{prefix}.*")
-    matches = glob.glob(pattern)
-    if not matches:
-        raise HTTPException(400, f"No file found for '{prefix}' in session")
-    return matches[0]
 
 
 class ReportRequest(BaseModel):
@@ -33,8 +26,8 @@ def generate_report(req: ReportRequest):
     if not os.path.exists(session_dir):
         raise HTTPException(404, "Session not found")
 
-    school_path = _resolve(session_dir, "school")
-    portal_path = _resolve(session_dir, "portal")
+    school_path = resolve_file(session_dir, "school")
+    portal_path = resolve_file(session_dir, "portal")
 
     school_records = parse_excel(school_path, "school", ai_fallback=gemini_service)
     portal_records = parse_excel(portal_path, "portal", ai_fallback=gemini_service)
@@ -48,13 +41,7 @@ def generate_report(req: ReportRequest):
     return {
         "message": "Report generated",
         "download_url": f"/api/reports/download/{req.session_id}",
-        "summary": {
-            "total_portal": len(portal_records),
-            "matched": comparison["matched"],
-            "new": comparison["new"],
-            "missing": comparison["missing"],
-            "modified": comparison["modified"],
-        },
+        "summary": report_data.get("summary", {}),
     }
 
 

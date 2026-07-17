@@ -8,15 +8,26 @@ export interface UploadResult {
   portal_sample: Record<string, string>[]
 }
 
+export interface FuzzyMatch {
+  school_id: string
+  portal_id: string
+  score: number
+}
+
 export interface CompareResult {
+  data_type?: 'student' | 'aggregate'
   matched: number
   missing: number
   modified: number
   new: number
   matched_ids: string[]
+  fuzzy_matched?: FuzzyMatch[]
   modifications: Modification[]
   new_records: Record<string, string>[]
   missing_records: Record<string, string>[]
+  category_result?: CategoryCompareResult
+  school_label?: string
+  portal_label?: string
 }
 
 export interface Modification {
@@ -27,6 +38,9 @@ export interface Modification {
   record_name: string
   difference_type: string
   ai_insight?: AIInsight
+  fuzzy_score?: number
+  school_id?: string
+  portal_id?: string
 }
 
 export interface AIInsight {

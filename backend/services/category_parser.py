@@ -38,7 +38,22 @@ CATEGORY_COMPARE_FIELDS = [
 
 CLASS_KEYWORDS = ["class", "grade", "standard", "cls", "कक्षा", "क्लास", "वर्ग"]
 
+SECTION_KEYWORDS = ["section", "अनुभाग", "सेक्शन", "sec", "section_name", "भाग"]
+
 SUBTOTAL_KEYWORDS = ["योग", "कुल", "subtotal", "total", "grand total", "संख्या", "sum"]
+
+TOTAL_KEYWORDS = [
+    "योग", "कुल योग", "कुल",
+    "total", "grand total", "subtotal",
+    "total students", "total student",
+    "संख्या", "sum",
+]
+
+TOTAL_COL_KEYWORDS = [
+    "योग", "कुल योग", "कुल", "total", "subtotal",
+    "संख्या", "total students", "total student", "sum",
+    "strength", "enrolled", "enrollment", "count",
+]
 
 
 def read_file(filepath: str) -> pd.DataFrame:
@@ -121,6 +136,16 @@ def flatten_nested_headers(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+def _detect_gender_from_text(text: str) -> str | None:
+    """Detect gender from text like 'बालक', 'बालिका', 'boys', 'girls'."""
+    lower = text.strip().lower()
+    for gender, suffixes in GENDER_SUFFIX_PATTERNS:
+        for sfx in suffixes:
+            if sfx.lower() in lower:
+                return gender
+    return None
+
+
 def resolve_columns_by_regex(df: pd.DataFrame) -> dict[str, str]:
     """
     Map columns to canonical types using regex patterns instead of keyword matching.
@@ -139,40 +164,50 @@ def resolve_columns_by_regex(df: pd.DataFrame) -> dict[str, str]:
             col_map[raw_col] = "total"
             continue
 
-        # 2. Regex-based category matching FIRST (before class/section) —
-        #    flattened names like 'अन्य पिछड़ा वर्ग_बालक' contain 'वर्ग' (class keyword)
-        #    but should resolve to obc, not class
-        matched = False
-        for canonical, pattern in CATEGORY_REGEX_PATTERNS.items():
-            if re.search(pattern, lower):
-                col_map[raw_col] = canonical
-                matched = True
-                break
-
-        if matched:
-            continue
-
-        # 3. Check section column keywords
+        # 2. Check section column keywords
         if any(kw in lower for kw in SECTION_KEYWORDS):
             col_map[raw_col] = "section"
             continue
 
-        # 4. Check class column keywords (after category regex — 'वर्ग' is also in 'पिछड़ा वर्ग')
+        # 3. Check class column keywords
         if _is_class_column(col_str):
             col_map[raw_col] = "class"
             continue
 
-        # 5. Detect sub-category from flattened name like 'sc_boys', 'obc_girls'
+        # 4. Handle flattened headers with underscore separator (e.g. 'एस.सी._बालक')
         parts = col_str.split("_")
-        if len(parts) == 2:
-            parent, child = parts
-            parent_lower = parent.lower()
-            child_lower = child.lower()
+        if len(parts) >= 2:
+            parent_part = parts[0]
+            child_part = "_".join(parts[1:])
+            parent_lower = parent_part.lower()
+            child_lower = child_part.lower()
+
+            # Check if parent matches a category
             for canonical, pattern in CATEGORY_REGEX_PATTERNS.items():
-                if re.search(pattern, parent_lower) or re.search(pattern, child_lower):
-                    col_map[raw_col] = canonical
-                    matched = True
+                if re.search(pattern, parent_lower):
+                    gender = _detect_gender_from_text(child_lower)
+                    if gender:
+                        col_map[raw_col] = f"{canonical}_{gender}"
+                    else:
+                        col_map[raw_col] = canonical
                     break
+            else:
+                # Check if child matches a category (reversed order)
+                for canonical, pattern in CATEGORY_REGEX_PATTERNS.items():
+                    if re.search(pattern, child_lower):
+                        gender = _detect_gender_from_text(parent_lower)
+                        if gender:
+                            col_map[raw_col] = f"{canonical}_{gender}"
+                        else:
+                            col_map[raw_col] = canonical
+                        break
+            continue
+
+        # 5. Single-column regex-based category matching
+        for canonical, pattern in CATEGORY_REGEX_PATTERNS.items():
+            if re.search(pattern, lower):
+                col_map[raw_col] = canonical
+                break
 
     return col_map
 
@@ -328,21 +363,6 @@ def _col_val(row: pd.Series, raw_key: Any) -> Any:
     return row[raw_key]
 
 
-SECTION_KEYWORDS = ["section", "अनुभाग", "सेक्शन", "sec", "section_name", "भाग"]
-
-CLASS_KEYWORDS_EXTENDED = CLASS_KEYWORDS + ["कक्षा", "क्लास"]
-
-TOTAL_KEYWORDS = [
-    "योग", "कुल योग", "कुल",
-    "total", "grand total", "subtotal",
-    "total students", "total student",
-    "संख्या", "sum",
-    "TOTAL", "GRAND TOTAL",
-]
-
-TOTAL_COL_KEYWORDS = ["योग", "कुल योग", "कुल", "total", "subtotal", "संख्या", "total students", "total student", "sum", "strength", "enrolled", "enrollment", "count"]
-
-
 def _find_section_col(df: pd.DataFrame, col_map: dict) -> str | None:
     for raw, mapped in col_map.items():
         if mapped == "section":
@@ -361,7 +381,7 @@ def _normalize_key(val: Any) -> str:
 def _is_total_row(row: pd.Series) -> bool:
     for cell in row.values:
         v = str(cell).strip().lower()
-        if any(kw in v for kw in ["योग", "कुल", "total", "subtotal", "grand total", "संख्या", "sum"]):
+        if any(kw in v for kw in SUBTOTAL_KEYWORDS):
             return True
     return False
 

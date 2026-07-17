@@ -27,10 +27,10 @@ export default function Reports() {
   return (
     <div className="max-w-2xl mx-auto space-y-5">
       <div className="flex items-center gap-3">
-        <Link to="/" className="p-1 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300"><ArrowLeft className="w-5 h-5" /></Link>
+        <Link to="/" className="p-1 text-notion-text-tertiary hover:text-notion-text-secondary dark:hover:text-notion-text-secondary-dark"><ArrowLeft className="w-5 h-5" /></Link>
         <div>
-          <h1 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Report</h1>
-          <p className="text-xs text-neutral-400 font-mono">{sessionId?.slice(0, 8)}</p>
+          <h1 className="text-lg font-semibold text-notion-text-primary dark:text-notion-text-primary-dark">Report</h1>
+          <p className="text-xs text-notion-text-tertiary font-mono">{sessionId?.slice(0, 8)}</p>
         </div>
         <div className="flex-1" />
         {sessionId && (
@@ -41,14 +41,14 @@ export default function Reports() {
       </div>
 
       <div className="card">
-        <div className="p-4">
+        <div className="p-5">
           <div className="flex items-start gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center flex-shrink-0">
-              <FileSpreadsheet className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+            <div className="w-10 h-10 rounded-lg bg-notion-sidebar dark:bg-notion-hover-dark flex items-center justify-center flex-shrink-0">
+              <FileSpreadsheet className="w-5 h-5 text-notion-text-secondary dark:text-notion-text-secondary-dark" />
             </div>
             <div>
-              <h2 className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Generate Summary Report</h2>
-              <p className="text-sm text-neutral-500 mt-0.5">Export matching details and statistics as Excel</p>
+              <h2 className="text-sm font-medium text-notion-text-primary dark:text-notion-text-primary-dark">Generate Summary Report</h2>
+              <p className="text-sm text-notion-text-secondary mt-0.5">Export matching details and statistics as Excel</p>
             </div>
           </div>
 
@@ -61,25 +61,25 @@ export default function Reports() {
           </button>
 
           {error && (
-            <div className="mt-3 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-600 dark:text-red-400">{error}</div>
+            <div className="mt-3 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200/60 dark:border-red-800/30 rounded-lg text-sm text-red-600 dark:text-red-400">{error}</div>
           )}
         </div>
       </div>
 
       {report && (
         <div className="card">
-          <div className="px-4 py-3 border-b border-neutral-100 dark:border-neutral-800">
+          <div className="px-4 py-3 border-b border-notion-border dark:border-notion-border-dark">
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-              <span className="text-sm font-medium text-emerald-700 dark:text-emerald-400">{report.message}</span>
+              <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400">{report.message}</span>
             </div>
           </div>
-          <div className="p-4">
+          <div className="p-5">
             <div className="grid grid-cols-5 gap-2 mb-4">
               {Object.entries(report.summary).map(([k, v]) => (
-                <div key={k} className="bg-neutral-50 dark:bg-neutral-800/50 rounded-lg p-3 text-center">
-                  <p className="text-xs text-neutral-400 capitalize">{k.replace('_', ' ')}</p>
-                  <p className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{v as number}</p>
+                <div key={k} className="bg-notion-sidebar dark:bg-notion-hover-dark rounded-lg p-3 text-center">
+                  <p className="text-xs text-notion-text-tertiary capitalize">{k.replace('_', ' ')}</p>
+                  <p className="text-lg font-semibold text-notion-text-primary dark:text-notion-text-primary-dark">{v as number}</p>
                 </div>
               ))}
             </div>
