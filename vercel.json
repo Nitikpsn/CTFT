@@ -1,22 +1,30 @@
 {
-  "builds": [
+  "services": {
+    "frontend": {
+      "root": "frontend",
+      "framework": "vite",
+      "outputDirectory": "dist",
+      "installCommand": "npm install",
+      "buildCommand": "npm run build"
+    },
+    "backend": {
+      "root": "backend"
+    }
+  },
+  "rewrites": [
     {
-      "src": "backend/main.py",
-      "use": "@vercel/python"
+      "source": "/api(/.*)?",
+      "destination": {
+        "type": "service",
+        "service": "backend"
+      }
     },
     {
-      "src": "frontend/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "frontend/dist",
-        "installCommand": "npm install",
-        "buildCommand": "npm run build"
+      "source": "/(.*)",
+      "destination": {
+        "type": "service",
+        "service": "frontend"
       }
     }
-  ],
-  "routes": [
-    { "src": "/api/(.*)", "dest": "backend/main.py" },
-    { "src": "/(.*\\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot))", "dest": "frontend/$1" },
-    { "src": "/(.*)", "dest": "frontend/index.html" }
   ]
 }
