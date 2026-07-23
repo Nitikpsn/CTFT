@@ -9,7 +9,7 @@
       "destination": "/api/index.py"
     },
     {
-      "source": "/((?!assets/|favicon.ico).*)",
+      "source": "/((?!api/|assets/|favicon|.*\\..*).*)",
       "destination": "/index.html"
     }
   ]
