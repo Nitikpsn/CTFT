@@ -27,6 +27,7 @@ export default function Compare() {
 
   const isAggregate = result?.data_type === 'aggregate'
 
+  // fetch comparison + stats on mount
   useEffect(() => {
     if (!sessionId) return
     setLoading(true)
@@ -48,6 +49,7 @@ export default function Compare() {
       .finally(() => setLoading(false))
   }, [sessionId])
 
+  // fetch category comparison on demand
   useEffect(() => {
     if (!sessionId || tab !== 'category' || catResult || isAggregate) return
     setCatLoading(true)
@@ -111,8 +113,8 @@ export default function Compare() {
     return (
       <div className="flex items-center justify-center py-20">
         <div className="text-center">
-          <div className="w-6 h-6 border-2 border-notion-text-tertiary border-t-notion-text-primary dark:border-notion-text-tertiary-dark dark:border-t-notion-text-primary-dark rounded-full animate-spin mx-auto mb-3" />
-          <p className="text-sm text-notion-text-tertiary">Comparing...</p>
+          <div className="w-6 h-6 border-2 border-slate-600 border-t-slate-200 rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-sm text-slate-500">Comparing...</p>
         </div>
       </div>
     )
@@ -122,7 +124,7 @@ export default function Compare() {
     return (
       <div className="max-w-md mx-auto py-16 text-center">
         <div className="card p-6">
-          <p className="text-sm text-red-600 dark:text-red-400 mb-3">{error}</p>
+          <p className="text-sm text-rose-400 mb-3">{error}</p>
           <Link to="/" className="btn-primary"><ArrowLeft className="w-4 h-4" /> Back</Link>
         </div>
       </div>
@@ -138,13 +140,18 @@ export default function Compare() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-5">
+      {/* header */}
       <div className="flex items-center gap-3">
-        <Link to="/" className="p-1 text-notion-text-tertiary hover:text-notion-text-secondary dark:hover:text-notion-text-secondary-dark"><ArrowLeft className="w-5 h-5" /></Link>
+        <Link to="/" className="p-1 text-slate-500 hover:text-slate-300"><ArrowLeft className="w-5 h-5" /></Link>
         <div>
-          <h1 className="text-lg font-semibold text-notion-text-primary dark:text-notion-text-primary-dark tracking-tight">Comparison</h1>
-          <p className="text-xs text-notion-text-tertiary font-mono">
+          <h1 className="text-lg font-semibold text-white tracking-tight">Comparison</h1>
+          <p className="text-xs text-slate-500 font-mono">
             {sessionId?.slice(0, 8)}
-            {isAggregate && <span className="ml-1 px-1.5 py-0.5 bg-notion-sidebar dark:bg-notion-hover-dark rounded text-[9px]">Class-Level Data</span>}
+            {isAggregate && (
+              <span className="ml-1.5 px-1.5 py-0.5 bg-slate-800 border border-slate-700 rounded text-[9px] text-slate-400">
+                Class-Level Data
+              </span>
+            )}
           </p>
         </div>
         <div className="flex-1" />
@@ -158,38 +165,40 @@ export default function Compare() {
         </Link>
       </div>
 
+      {/* streaming progress bar */}
       {streamProgress && (
         <div className="card p-4">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 border-2 border-notion-text-tertiary border-t-notion-text-primary rounded-full animate-spin" />
-              <span className="text-sm font-medium text-notion-text-primary dark:text-notion-text-primary-dark">AI Real-time Analysis</span>
+              <div className="w-4 h-4 border-2 border-slate-600 border-t-slate-200 rounded-full animate-spin" />
+              <span className="text-sm font-medium text-slate-200">AI Real-time Analysis</span>
             </div>
-            <span className="text-xs text-notion-text-tertiary">{streamProgress.current}/{streamProgress.total}</span>
+            <span className="text-xs text-slate-500">{streamProgress.current}/{streamProgress.total}</span>
           </div>
-          <div className="h-1.5 bg-notion-hover dark:bg-notion-hover-dark rounded-full overflow-hidden">
+          <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
             <div
-              className="h-full bg-notion-text-primary dark:bg-white rounded-full transition-all duration-300"
+              className="h-full bg-indigo-600 rounded-full transition-all duration-300"
               style={{ width: `${streamProgress.total > 0 ? (streamProgress.current / streamProgress.total) * 100 : 0}%` }}
             />
           </div>
-          <p className="text-xs text-notion-text-tertiary mt-1.5">{streamProgress.message}</p>
+          <p className="text-xs text-slate-500 mt-1.5">{streamProgress.message}</p>
         </div>
       )}
 
+      {/* live events log */}
       {liveEvents.length > 0 && (
         <details className="card">
-          <summary className="px-4 py-2.5 text-xs font-medium text-notion-text-secondary cursor-pointer hover:text-notion-text-primary dark:hover:text-notion-text-primary-dark">
+          <summary className="px-4 py-2.5 text-xs font-medium text-slate-400 cursor-pointer hover:text-slate-200">
             Live Stream Log ({liveEvents.length} events)
           </summary>
           <div className="px-4 pb-3 max-h-48 overflow-y-auto space-y-1">
             {liveEvents.map((evt, i) => (
-              <div key={i} className="text-[10px] font-mono text-notion-text-tertiary">
+              <div key={i} className="text-[10px] font-mono text-slate-500">
                 <span className={
-                  evt.event === 'progress' ? 'text-blue-500' :
-                  evt.event === 'diff_analyzed' ? 'text-amber-500' :
-                  evt.event === 'fuzzy_match' || evt.event === 'ai_match' ? 'text-emerald-500' :
-                  'text-notion-text-tertiary'
+                  evt.event === 'progress' ? 'text-indigo-400' :
+                  evt.event === 'diff_analyzed' ? 'text-amber-400' :
+                  evt.event === 'fuzzy_match' || evt.event === 'ai_match' ? 'text-emerald-400' :
+                  'text-slate-500'
                 }>
                   [{evt.event}]
                 </span>{' '}
@@ -200,14 +209,15 @@ export default function Compare() {
         </details>
       )}
 
-      <div className="flex gap-0.5 border-b border-notion-border dark:border-notion-border-dark">
+      {/* tabs */}
+      <div className="flex gap-0.5 border-b border-slate-800">
         {!isAggregate && (
           <button
             onClick={() => setTab('student')}
             className={`flex items-center gap-1.5 px-3 py-2 text-xs font-medium border-b-2 transition-colors ${
               tab === 'student'
-                ? 'border-notion-text-primary dark:border-notion-text-primary-dark text-notion-text-primary dark:text-notion-text-primary-dark'
-                : 'border-transparent text-notion-text-tertiary hover:text-notion-text-secondary dark:hover:text-notion-text-secondary-dark'
+                ? 'border-indigo-400 text-indigo-400'
+                : 'border-transparent text-slate-500 hover:text-slate-300'
             }`}
           >
             <BarChart3 className="w-3.5 h-3.5" />
@@ -218,8 +228,8 @@ export default function Compare() {
           onClick={() => setTab('category')}
           className={`flex items-center gap-1.5 px-3 py-2 text-xs font-medium border-b-2 transition-colors ${
             tab === 'category'
-              ? 'border-notion-text-primary dark:border-notion-text-primary-dark text-notion-text-primary dark:text-notion-text-primary-dark'
-              : 'border-transparent text-notion-text-tertiary hover:text-notion-text-secondary dark:hover:text-notion-text-secondary-dark'
+              ? 'border-indigo-400 text-indigo-400'
+              : 'border-transparent text-slate-500 hover:text-slate-300'
           }`}
         >
           <Layers className="w-3.5 h-3.5" />
@@ -250,15 +260,15 @@ export default function Compare() {
           {catLoading ? (
             <div className="flex items-center justify-center py-16">
               <div className="text-center">
-                <div className="w-5 h-5 border-2 border-notion-text-tertiary border-t-notion-text-primary rounded-full animate-spin mx-auto mb-2" />
-                <p className="text-xs text-notion-text-tertiary">Analyzing category breakdown...</p>
+                <div className="w-5 h-5 border-2 border-slate-600 border-t-slate-200 rounded-full animate-spin mx-auto mb-2" />
+                <p className="text-xs text-slate-500">Analyzing category breakdown...</p>
               </div>
             </div>
           ) : catResult ? (
             <CategoryComparison result={catResult} />
           ) : (
             <div className="py-16 text-center">
-              <p className="text-sm text-notion-text-tertiary">No category data available for this upload.</p>
+              <p className="text-sm text-slate-500">No category data available for this upload.</p>
             </div>
           )}
         </>

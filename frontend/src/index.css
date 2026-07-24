@@ -6,37 +6,44 @@ body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-  letter-spacing: -0.011em;
 }
 
-.dark body {
-  color-scheme: dark;
+html {
+  scroll-behavior: smooth;
+  background: #0b0f17;
+  color: #e2e8f0;
 }
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.15); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(148, 163, 184, 0.3); }
 
 ::selection {
-  background: rgba(55, 55, 55, 0.15);
-}
-.dark ::selection {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(99, 102, 241, 0.2);
 }
 
-.card {
-  @apply bg-white dark:bg-notion-card-dark border border-notion-border dark:border-notion-border-dark rounded-lg;
-}
+@layer components {
+  .card {
+    @apply bg-slate-900/50 border border-slate-800 rounded-xl;
+  }
 
-.btn {
-  @apply inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-md transition-colors;
-}
+  .card-header {
+    @apply px-5 py-3.5 border-b border-slate-800;
+  }
 
-.btn-primary {
-  @apply btn bg-notion-text-primary dark:bg-white text-white dark:text-notion-bg-dark hover:opacity-90 disabled:opacity-40;
-}
+  .btn {
+    @apply inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-150;
+  }
 
-.btn-secondary {
-  @apply btn border border-notion-border dark:border-notion-border-dark text-notion-text-secondary dark:text-notion-text-secondary-dark hover:bg-notion-hover dark:hover:bg-notion-hover-dark;
-}
+  .btn-primary {
+    @apply btn bg-indigo-600 text-white hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed;
+  }
 
-h1, h2, h3, h4, h5, h6 {
-  letter-spacing: -0.025em;
+  .btn-secondary {
+    @apply btn bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed;
+  }
 }

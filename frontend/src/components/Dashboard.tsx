@@ -1,28 +1,27 @@
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
 
-const COLORS = ['#373737', '#ef4444', '#10b981', '#f59e0b', '#6366f1', '#06b6d4', '#ec4899']
-const COLORS_DARK = ['rgba(255,255,255,0.8)', '#ef4444', '#10b981', '#f59e0b', '#6366f1', '#06b6d4', '#ec4899']
+// todo: maybe make these configurable later
+const COLORS = ['#64748b', '#f43f5e', '#10b981', '#f59e0b', '#6366f1', '#06b6d4', '#ec4899']
 
 export default function Dashboard({ stats }: { stats: any }) {
-  if (!stats || !stats.labels || Object.keys(stats.labels).length === 0) {
+  if (!stats?.labels || Object.keys(stats.labels).length === 0) {
     return (
       <div className="card p-8 text-center mt-4">
-        <p className="text-sm text-notion-text-tertiary">No statistics to display yet</p>
+        <p className="text-sm text-slate-500">No statistics to display yet</p>
       </div>
     )
   }
 
   const entries = Object.entries(stats.labels).filter(([, v]) => (v as number) > 0) as [string, number][]
   const total = entries.reduce((a, [, v]) => a + v, 0)
-
   const data = entries.map(([name, value]) => ({ name, value }))
   const isSmall = entries.length <= 2
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
       <div className="card">
-        <div className="px-4 py-3 border-b border-notion-border dark:border-notion-border-dark">
-          <h3 className="text-sm font-medium text-notion-text-primary dark:text-notion-text-primary-dark">Distribution</h3>
+        <div className="card-header">
+          <h3 className="text-sm font-medium text-slate-200">Distribution</h3>
         </div>
         <div className="p-4">
           <ResponsiveContainer width="100%" height={260}>
@@ -34,10 +33,18 @@ export default function Dashboard({ stats }: { stats: any }) {
               </PieChart>
             ) : (
               <BarChart data={data}>
-                <Tooltip />
-                <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                <YAxis tick={{ fontSize: 12 }} />
-                <Bar dataKey="value" fill="#373737" radius={[3, 3, 0, 0]} />
+                <Tooltip
+                  contentStyle={{
+                    background: '#1e293b',
+                    border: '1px solid #334155',
+                    borderRadius: '8px',
+                    fontSize: '12px',
+                  }}
+                  labelStyle={{ color: '#e2e8f0' }}
+                />
+                <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#64748b' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 12, fill: '#64748b' }} axisLine={false} tickLine={false} />
+                <Bar dataKey="value" fill="#6366f1" radius={[4, 4, 0, 0]} />
               </BarChart>
             )}
           </ResponsiveContainer>
@@ -45,8 +52,8 @@ export default function Dashboard({ stats }: { stats: any }) {
       </div>
 
       <div className="card">
-        <div className="px-4 py-3 border-b border-notion-border dark:border-notion-border-dark">
-          <h3 className="text-sm font-medium text-notion-text-primary dark:text-notion-text-primary-dark">Summary</h3>
+        <div className="card-header">
+          <h3 className="text-sm font-medium text-slate-200">Summary</h3>
         </div>
         <div className="p-4 space-y-3">
           {entries.map(([key, value], i) => {
@@ -54,12 +61,10 @@ export default function Dashboard({ stats }: { stats: any }) {
             return (
               <div key={key}>
                 <div className="flex justify-between text-sm mb-1">
-                  <span className="text-notion-text-secondary dark:text-notion-text-secondary-dark capitalize">{key}</span>
-                  <span className="font-medium text-notion-text-primary dark:text-notion-text-primary-dark">
-                    {value.toLocaleString()} ({pct}%)
-                  </span>
+                  <span className="text-slate-400 capitalize">{key}</span>
+                  <span className="font-medium text-slate-200">{value.toLocaleString()} ({pct}%)</span>
                 </div>
-                <div className="h-1.5 bg-notion-hover dark:bg-notion-hover-dark rounded-full overflow-hidden">
+                <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
                   <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: COLORS[i % COLORS.length] }} />
                 </div>
               </div>

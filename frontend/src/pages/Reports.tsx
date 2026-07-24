@@ -8,7 +8,6 @@ export default function Reports() {
   const [report, setReport] = useState<any>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-
   const API_BASE = import.meta.env.VITE_API_URL || ''
 
   const handleGenerate = async () => {
@@ -26,11 +25,12 @@ export default function Reports() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-5">
+      {/* header */}
       <div className="flex items-center gap-3">
-        <Link to="/" className="p-1 text-notion-text-tertiary hover:text-notion-text-secondary dark:hover:text-notion-text-secondary-dark"><ArrowLeft className="w-5 h-5" /></Link>
+        <Link to="/" className="p-1 text-slate-500 hover:text-slate-300"><ArrowLeft className="w-5 h-5" /></Link>
         <div>
-          <h1 className="text-lg font-semibold text-notion-text-primary dark:text-notion-text-primary-dark tracking-tight">Report</h1>
-          <p className="text-xs text-notion-text-tertiary font-mono">{sessionId?.slice(0, 8)}</p>
+          <h1 className="text-lg font-semibold text-white tracking-tight">Report</h1>
+          <p className="text-xs text-slate-500 font-mono">{sessionId?.slice(0, 8)}</p>
         </div>
         <div className="flex-1" />
         {sessionId && (
@@ -40,15 +40,18 @@ export default function Reports() {
         )}
       </div>
 
+      {/* generate card */}
       <div className="card">
         <div className="p-5">
           <div className="flex items-start gap-3 mb-4">
-            <div className="w-10 h-10 rounded-lg bg-notion-sidebar dark:bg-notion-hover-dark flex items-center justify-center flex-shrink-0">
-              <FileSpreadsheet className="w-5 h-5 text-notion-text-secondary dark:text-notion-text-secondary-dark" />
+            <div className="w-10 h-10 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center shrink-0">
+              <FileSpreadsheet className="w-5 h-5 text-slate-400" />
             </div>
             <div>
-              <h2 className="text-sm font-medium text-notion-text-primary dark:text-notion-text-primary-dark">Generate Summary Report</h2>
-              <p className="text-sm text-notion-text-secondary mt-0.5">Export comparison results and statistics as a formatted Excel file</p>
+              <h2 className="text-sm font-medium text-slate-200">Generate Summary Report</h2>
+              <p className="text-sm text-slate-400 mt-0.5">
+                Export comparison results and statistics as a formatted Excel file
+              </p>
             </div>
           </div>
 
@@ -61,25 +64,28 @@ export default function Reports() {
           </button>
 
           {error && (
-            <div className="mt-3 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200/60 dark:border-red-800/30 rounded-lg text-sm text-red-600 dark:text-red-400">{error}</div>
+            <div className="mt-3 p-3 bg-rose-500/5 border border-rose-600/20 rounded-xl text-sm text-rose-300">
+              {error}
+            </div>
           )}
         </div>
       </div>
 
+      {/* result card */}
       {report && (
         <div className="card">
-          <div className="px-4 py-3 border-b border-notion-border dark:border-notion-border-dark">
+          <div className="card-header">
             <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-              <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400">{report.message}</span>
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              <span className="text-sm font-medium text-emerald-300">{report.message}</span>
             </div>
           </div>
           <div className="p-5">
             <div className="grid grid-cols-5 gap-2 mb-4">
               {Object.entries(report.summary).map(([k, v]) => (
-                <div key={k} className="bg-notion-sidebar dark:bg-notion-hover-dark rounded-lg p-3 text-center">
-                  <p className="text-xs text-notion-text-tertiary capitalize">{k.replace('_', ' ')}</p>
-                  <p className="text-lg font-semibold text-notion-text-primary dark:text-notion-text-primary-dark">{v as number}</p>
+                <div key={k} className="bg-slate-800/50 border border-slate-700 rounded-xl p-3 text-center">
+                  <p className="text-xs text-slate-500 capitalize">{k.replace(/_/g, ' ')}</p>
+                  <p className="text-lg font-semibold text-white">{v as number}</p>
                 </div>
               ))}
             </div>

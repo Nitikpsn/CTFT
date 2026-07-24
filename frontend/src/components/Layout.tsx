@@ -15,11 +15,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation()
   const [sessions, setSessions] = useState<any[]>([])
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [dark, setDark] = useState(() => localStorage.getItem('theme') === 'dark')
+  // dark mode: default to light
+  const [dark, setDark] = useState(() => localStorage.getItem('theme') !== 'dark')
 
   useEffect(() => {
-    document.documentElement.classList.toggle('dark', dark)
-    localStorage.setItem('theme', dark ? 'dark' : 'light')
+    document.documentElement.classList.toggle('dark', !dark)
+    localStorage.setItem('theme', dark ? 'light' : 'dark')
   }, [dark])
 
   useEffect(() => {
@@ -33,38 +34,36 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   const sessionId = location.pathname.split('/')[2]
 
-  const sidebarClass = sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-
   return (
-    <div className="min-h-screen bg-white dark:bg-notion-bg-dark flex">
+    <div className="min-h-screen bg-surface flex">
       {sidebarOpen && (
-        <div className="fixed inset-0 bg-black/40 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
+        <div className="fixed inset-0 bg-black/60 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      <aside className={`fixed inset-y-0 left-0 z-50 w-60 bg-notion-sidebar dark:bg-notion-sidebar-dark flex flex-col transform transition-transform lg:translate-x-0 lg:static lg:z-auto ${sidebarClass}`}>
-        <div className="h-11 flex items-center px-3">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-5 h-5 rounded bg-notion-text-primary dark:bg-white flex items-center justify-center">
-              <LayoutDashboard className="w-3 h-3 text-white dark:text-notion-bg-dark" />
+      <aside className={`fixed inset-y-0 left-0 z-50 w-60 bg-slate-900/90 backdrop-blur-xl border-r border-slate-800 flex flex-col transform transition-transform lg:translate-x-0 lg:static lg:z-auto ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="h-12 flex items-center px-4 border-b border-slate-800">
+          <Link to="/" className="flex items-center gap-2.5">
+            <div className="w-6 h-6 rounded-lg bg-indigo-600 flex items-center justify-center">
+              <LayoutDashboard className="w-3.5 h-3.5 text-white" />
             </div>
-            <span className="font-semibold text-notion-text-primary dark:text-notion-text-primary-dark text-sm">CTFT</span>
+            <span className="font-semibold text-sm text-white">CTFT</span>
           </Link>
-          <button onClick={() => setSidebarOpen(false)} className="ml-auto lg:hidden p-1 text-notion-text-tertiary">
+          <button onClick={() => setSidebarOpen(false)} className="ml-auto lg:hidden p-1 text-slate-500">
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        <nav className="flex-1 py-1 px-2 space-y-px overflow-y-auto">
+        <nav className="flex-1 py-2 px-2 space-y-0.5 overflow-y-auto">
           {navItems.map(item => {
             const isActive = item.path === '/' ? location.pathname === '/' : location.pathname.startsWith(item.path)
             return (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center gap-2 px-2 py-1 text-sm rounded ${
+                className={`flex items-center gap-2.5 px-3 py-2 text-sm rounded-lg transition-colors ${
                   isActive
-                    ? 'bg-notion-hover dark:bg-notion-hover-dark text-notion-text-primary dark:text-notion-text-primary-dark font-medium'
-                    : 'text-notion-text-secondary dark:text-notion-text-secondary-dark hover:bg-notion-hover dark:hover:bg-notion-hover-dark'
+                    ? 'bg-indigo-600/10 text-indigo-400 font-medium'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
                 }`}
               >
                 <item.icon className="w-4 h-4" />
@@ -73,28 +72,24 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             )
           })}
 
+          {/* recent sessions - last 20 */}
           {sessions.length > 0 && (
-            <div className="mt-4">
-              <p className="px-2 text-[11px] text-notion-text-tertiary dark:text-notion-text-tertiary-dark mb-0.5">
-                Recent
-              </p>
+            <div className="mt-6 pt-4 border-t border-slate-800">
+              <p className="px-3 text-xs text-slate-500 mb-1 font-medium tracking-wider uppercase">Recent</p>
               {sessions.map(s => {
                 const active = s.session_id === sessionId
                 return (
                   <Link
                     key={s.session_id}
                     to={`/compare/${s.session_id}`}
-                    className={`flex items-center gap-2 px-2 py-1 text-sm rounded ${
+                    className={`flex items-center gap-2.5 px-3 py-1.5 text-xs rounded-lg transition-colors ${
                       active
-                        ? 'bg-notion-hover dark:bg-notion-hover-dark text-notion-text-primary dark:text-notion-text-primary-dark'
-                        : 'text-notion-text-secondary dark:text-notion-text-secondary-dark hover:bg-notion-hover dark:hover:bg-notion-hover-dark'
+                        ? 'bg-slate-800 text-slate-200'
+                        : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
                     }`}
                   >
-                    <div className={`w-1 h-1 rounded-full ${active ? 'bg-notion-text-primary dark:bg-white' : 'bg-notion-text-tertiary dark:bg-notion-text-tertiary-dark'}`} />
-                    <div className="truncate">
-                      <p className="text-xs font-mono truncate">{s.session_id.slice(0, 8)}</p>
-                      <p className="text-[10px] text-notion-text-tertiary dark:text-notion-text-tertiary-dark truncate">{s.created}</p>
-                    </div>
+                    <div className={`w-1 h-1 rounded-full ${active ? 'bg-indigo-400' : 'bg-slate-600'}`} />
+                    <span className="font-mono truncate">{s.session_id.slice(0, 8)}</span>
                   </Link>
                 )
               })}
@@ -102,24 +97,24 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           )}
         </nav>
 
-        <div className="px-3 py-2 space-y-2">
-          <div className="flex items-start gap-2 p-2 bg-notion-hover dark:bg-notion-hover-dark rounded">
-            <AlertTriangle className="w-3.5 h-3.5 text-notion-text-secondary dark:text-notion-text-secondary-dark mt-0.5 flex-shrink-0" />
-            <p className="text-[10px] leading-tight text-notion-text-secondary dark:text-notion-text-secondary-dark">
-              Built for KV teachers to compare Excel student data with the portal.
-            </p>
+        <div className="px-3 py-3 space-y-2 border-t border-slate-800">
+          <div className="flex items-start gap-2 px-2 py-1.5">
+            <AlertTriangle className="w-3.5 h-3.5 text-slate-500 mt-0.5 shrink-0" />
+            <p className="text-xs text-slate-500 leading-relaxed">Built for KV teachers to compare Excel data with the portal.</p>
           </div>
-          <p className="text-[10px] text-notion-text-tertiary dark:text-notion-text-tertiary-dark text-center">Made by <a href="https://github.com/Nitikpsn" target="_blank" rel="noopener noreferrer" className="text-notion-text-secondary dark:text-notion-text-secondary-dark hover:text-notion-text-primary dark:hover:text-notion-text-primary-dark underline underline-offset-2">Nitik Paswan</a></p>
+          <p className="text-xs text-slate-600 text-center">
+            Made by <a href="https://github.com/Nitikpsn" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-slate-300 underline underline-offset-2">Nitik Paswan</a>
+          </p>
         </div>
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="h-11 bg-white dark:bg-notion-bg-dark border-b border-notion-border dark:border-notion-border-dark flex items-center px-3 lg:px-5 sticky top-0 z-30">
-          <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-1 -ml-1 text-notion-text-secondary dark:text-notion-text-secondary-dark">
+        <header className="h-12 bg-surface border-b border-slate-800 flex items-center px-4 lg:px-6 sticky top-0 z-30">
+          <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-1.5 -ml-1.5 text-slate-400 hover:text-slate-200 rounded-lg hover:bg-slate-800/50">
             <Menu className="w-5 h-5" />
           </button>
           <div className="flex-1" />
-          <button onClick={() => setDark(!dark)} className="p-1.5 text-notion-text-secondary dark:text-notion-text-secondary-dark hover:text-notion-text-primary dark:hover:text-notion-text-primary-dark rounded hover:bg-notion-hover dark:hover:bg-notion-hover-dark transition-colors">
+          <button onClick={() => setDark(!dark)} className="p-1.5 text-slate-400 hover:text-slate-200 rounded-lg hover:bg-slate-800/50 transition-colors">
             {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </button>
         </header>
